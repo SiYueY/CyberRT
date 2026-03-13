@@ -33,16 +33,20 @@ namespace apollo {
 namespace cyber {
 namespace data {
 
+// Visitor 配置
 struct VisitorConfig {
   VisitorConfig(uint64_t id, uint32_t size)
       : channel_id(id), queue_size(size) {}
+  // Channel ID
   uint64_t channel_id;
+  // 队列大小
   uint32_t queue_size;
 };
 
 template <typename T>
 using BufferType = CacheBuffer<std::shared_ptr<T>>;
 
+// DataVisitor
 template <typename M0, typename M1 = NullType, typename M2 = NullType,
           typename M3 = NullType>
 class DataVisitor : public DataVisitorBase {
@@ -82,7 +86,9 @@ class DataVisitor : public DataVisitorBase {
   }
 
  private:
+  // 数据融合
   fusion::DataFusion<M0, M1, M2, M3>* data_fusion_ = nullptr;
+  // Channel 缓存
   ChannelBuffer<M0> buffer_m0_;
   ChannelBuffer<M1> buffer_m1_;
   ChannelBuffer<M2> buffer_m2_;

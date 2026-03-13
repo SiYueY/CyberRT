@@ -38,6 +38,7 @@ namespace cyber {
 using apollo::cyber::proto::ComponentConfig;
 using apollo::cyber::proto::TimerComponentConfig;
 
+// 基础组件
 class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
  public:
   template <typename M>
@@ -45,8 +46,12 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
 
   virtual ~ComponentBase() {}
 
+  // 初始化[普通组件]
   virtual bool Initialize(const ComponentConfig& config) { return false; }
+  // 初始化[定时组件]
   virtual bool Initialize(const TimerComponentConfig& config) { return false; }
+  
+  // 关闭
   virtual void Shutdown() {
     if (is_shutdown_.exchange(true)) {
       return;
@@ -59,6 +64,7 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
     scheduler::Instance()->RemoveTask(node_->Name());
   }
 
+  // 获取 Proto 格式配置
   template <typename T>
   bool GetProtoConfig(T* config) const {
     return common::GetProtoFromFile(config_file_path_, config);
@@ -67,9 +73,13 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
  protected:
   virtual bool Init() = 0;
   virtual void Clear() { return; }
+
+  // 配置文件路径
   const std::string& ConfigFilePath() const { return config_file_path_; }
 
+  // 加载配置文件[普通组件]
   void LoadConfigFiles(const ComponentConfig& config) {
+    // 获取配置文件路径
     if (!config.config_file_path().empty()) {
       if (!common::GetFilePathWithEnv(config.config_file_path(),
                                       "APOLLO_CONF_PATH", &config_file_path_)) {
@@ -80,6 +90,7 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
       }
     }
 
+    // 设置 Flag 文件路径
     if (!config.flag_file_path().empty()) {
       std::string flag_file_path = config.flag_file_path();
       if (!common::GetFilePathWithEnv(config.flag_file_path(),
@@ -91,7 +102,8 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
       google::SetCommandLineOption("flagfile", flag_file_path.c_str());
     }
   }
-
+  
+  // 加载配置文件[定时组件]
   void LoadConfigFiles(const TimerComponentConfig& config) {
     if (!config.config_file_path().empty()) {
       if (!common::GetFilePathWithEnv(config.config_file_path(),
@@ -115,9 +127,13 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
     }
   }
 
+  // 是否关闭
   std::atomic<bool> is_shutdown_ = {false};
-  std::shared_ptr<Node> node_ = nullptr;
+  // 配置文件路径
   std::string config_file_path_ = "";
+  // Node
+  std::shared_ptr<Node> node_ = nullptr;
+  // Readers
   std::vector<std::shared_ptr<ReaderBase>> readers_;
 };
 

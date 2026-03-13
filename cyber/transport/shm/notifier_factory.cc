@@ -30,8 +30,11 @@ namespace transport {
 using common::GlobalData;
 
 auto NotifierFactory::CreateNotifier() -> NotifierPtr {
+  // Notifier 类型, 默认为 ConditionNotifier
   std::string notifier_type(ConditionNotifier::Type());
+  // 全局配置
   auto& g_conf = GlobalData::Instance()->Config();
+  // 共享内存 Notifier 类型配置
   if (g_conf.has_transport_conf() && g_conf.transport_conf().has_shm_conf() &&
       g_conf.transport_conf().shm_conf().has_notifier_type()) {
     notifier_type = g_conf.transport_conf().shm_conf().notifier_type();

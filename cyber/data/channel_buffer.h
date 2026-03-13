@@ -32,6 +32,7 @@ namespace data {
 
 using apollo::cyber::common::GlobalData;
 
+// Channel Buffer: 通道缓存队列
 template <typename T>
 class ChannelBuffer {
  public:

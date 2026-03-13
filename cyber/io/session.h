@@ -30,6 +30,7 @@ namespace apollo {
 namespace cyber {
 namespace io {
 
+// Session 会话
 class Session {
  public:
   using SessionPtr = std::shared_ptr<Session>;

@@ -42,34 +42,38 @@ namespace transport {
 template <typename T, typename U>
 struct type_check : std::is_same<typename std::decay<T>::type, U>::type {};
 
+// SHM Transmitter: 共享内存发送器
 template <typename M>
 class ShmTransmitter : public Transmitter<M> {
  public:
-  using MessagePtr = std::shared_ptr<M>;
+  using MessagePtr = std::shared_ptr<M>;  // 消息指针类型
 
   explicit ShmTransmitter(const RoleAttributes& attr);
   virtual ~ShmTransmitter();
 
+  // Enable/Disable
   void Enable() override;
   void Disable() override;
 
   void Enable(const RoleAttributes& opposite_attr);
   void Disable(const RoleAttributes& opposite_attr);
 
+  // Transmit 发送
   bool Transmit(const MessagePtr& msg, const MessageInfo& msg_info) override;
 
   bool AcquireMessage(std::shared_ptr<M>& msg);
 
  private:
+  // Transmit 发送
   bool Transmit(const M& msg, const MessageInfo& msg_info);
 
-  SegmentPtr segment_;
-  uint64_t channel_id_;
-  uint64_t host_id_;
-  NotifierPtr notifier_;
-  std::atomic<int> serialized_receiver_count_;
-  std::atomic<int> arena_receiver_count_;
-  bool arena_transmit_;
+  SegmentPtr segment_;                          // 共享内存段
+  uint64_t channel_id_;                         // Channel ID
+  uint64_t host_id_;                            // Host ID
+  NotifierPtr notifier_;                        // 通知器
+  std::atomic<int> serialized_receiver_count_;  // 序列化接收者数量
+  std::atomic<int> arena_receiver_count_;       //  arenas 接收者数量
+  bool arena_transmit_;                         // 是否使用 arenas 传输
 };
 
 template <typename M>
@@ -214,6 +218,7 @@ bool ShmTransmitter<M>::Transmit(const M& msg, const MessageInfo& msg_info) {
   readable_info.set_block_index(-1);
 
   if (arena_transmit_) {
+    // Arena 发送
     // std::size_t msg_size = sizeof(message::ArenaMessageWrapper);
     std::size_t msg_size = 1024;
     if (!segment_->AcquireArenaBlockToWrite(msg_size, &arena_wb)) {
@@ -288,6 +293,7 @@ bool ShmTransmitter<M>::Transmit(const M& msg, const MessageInfo& msg_info) {
       segment_->ReleaseArenaWrittenBlock(arena_wb);
     }
   } else {
+    // 非 Arena 发送
     std::size_t msg_size = message::ByteSize(msg);
     if (!segment_->AcquireBlockToWrite(msg_size, &wb)) {
       AERROR << "acquire block failed.";

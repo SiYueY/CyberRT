@@ -29,25 +29,33 @@ namespace apollo {
 namespace cyber {
 namespace class_loader {
 
+// 类加载器管理器
 class ClassLoaderManager {
  public:
   ClassLoaderManager();
   virtual ~ClassLoaderManager();
 
+  // 加载动态库
   bool LoadLibrary(const std::string& library_path);
+  // 卸载动态库
   void UnloadAllLibrary();
+  // 动态库是否有效
   bool IsLibraryValid(const std::string& library_path);
+  // 创建类对象实例
   template <typename Base>
   std::shared_ptr<Base> CreateClassObj(const std::string& class_name);
   template <typename Base>
   std::shared_ptr<Base> CreateClassObj(const std::string& class_name,
                                        const std::string& library_path);
+  // 类的名称是否有效
   template <typename Base>
   bool IsClassValid(const std::string& class_name);
+  // 获取有效类的名称
   template <typename Base>
   std::vector<std::string> GetValidClassNames();
 
   /**
+   * 获取类的有效库路径
    * @brief get pathof  library that class belongs to
    * @param class_name derived class
    * @return path of library that containing the derived class
@@ -56,14 +64,18 @@ class ClassLoaderManager {
   std::string GetClassValidLibrary(const std::string& class_name);
 
  private:
+  // 根据库路径获取类加载器
   ClassLoader* GetClassLoaderByLibPath(const std::string& library_path);
+  // 获取所有有效类加载器
   std::vector<ClassLoader*> GetAllValidClassLoaders();
+  // 获取所有有效库路径
   std::vector<std::string> GetAllValidLibPath();
+  // 卸载动态库
   int UnloadLibrary(const std::string& library_path);
 
  private:
-  std::mutex libpath_loader_map_mutex_;
-  std::map<std::string, ClassLoader*> libpath_loader_map_;
+  std::mutex libpath_loader_map_mutex_;                     // 互斥锁
+  std::map<std::string, ClassLoader*> libpath_loader_map_;  // 库路径和类加载器映射
 };
 
 template <typename Base>

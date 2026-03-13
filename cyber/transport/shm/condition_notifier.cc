@@ -23,7 +23,7 @@
 #include "cyber/common/log.h"
 #include "cyber/common/util.h"
 
-namespace apollo {
+namespace apollo {k
 namespace cyber {
 namespace transport {
 
@@ -78,7 +78,8 @@ bool ConditionNotifier::Listen(int timeout_ms, ReadableInfo* info) {
     ADEBUG << "notifier is shutdown.";
     return false;
   }
-
+  
+  // 轮训等待通知
   int timeout_us = timeout_ms * 1000;
   while (!is_shutdown_.load()) {
     uint64_t seq = indicator_->next_seq.load();

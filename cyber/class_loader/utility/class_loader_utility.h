@@ -61,9 +61,13 @@ std::string GetCurLoadingLibraryName();
 void SetCurLoadingLibraryName(const std::string& library_name);
 ClassLoader* GetCurActiveClassLoader();
 void SetCurActiveClassLoader(ClassLoader* loader);
+// 动态库是否已经被 ClassLoader 加载过
 bool IsLibraryLoaded(const std::string& library_path, ClassLoader* loader);
+// 动态库是否已经加载过
 bool IsLibraryLoadedByAnybody(const std::string& library_path);
+// 加载动态库
 bool LoadLibrary(const std::string& library_path, ClassLoader* loader);
+// 卸载动态库
 void UnloadLibrary(const std::string& library_path, ClassLoader* loader);
 template <typename Derived, typename Base>
 void RegisterClass(const std::string& class_name,
@@ -73,6 +77,9 @@ Base* CreateClassObj(const std::string& class_name, ClassLoader* loader);
 template <typename Base>
 std::vector<std::string> GetValidClassNames(ClassLoader* loader);
 
+// 注册类: 构建 ClassFactory 并注册到 ClassLoaderManager
+// Derived : 派生类
+// Base    : 基类
 template <typename Derived, typename Base>
 void RegisterClass(const std::string& class_name,
                    const std::string& base_class_name) {
@@ -91,8 +98,12 @@ void RegisterClass(const std::string& class_name,
   GetClassFactoryMapMapMutex().unlock();
 }
 
+// 创建类的对象
+// typeid(Base).name(): 基类名称
+// class_name         : 派生类名称
 template <typename Base>
 Base* CreateClassObj(const std::string& class_name, ClassLoader* loader) {
+  // 根据基类名称查找 ClassFactory
   GetClassFactoryMapMapMutex().lock();
   ClassClassFactoryMap& factoryMap =
       GetClassFactoryMapByBaseClass(typeid(Base).name());
@@ -103,6 +114,7 @@ Base* CreateClassObj(const std::string& class_name, ClassLoader* loader) {
   }
   GetClassFactoryMapMapMutex().unlock();
 
+  // 通过 ClassFactory 创建类的对象
   Base* classobj = nullptr;
   if (factory && factory->IsOwnedBy(loader)) {
     classobj = factory->CreateObj();

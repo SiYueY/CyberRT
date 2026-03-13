@@ -35,30 +35,38 @@ namespace apollo {
 namespace cyber {
 namespace scheduler {
 
+// 最大优先级
 static constexpr uint32_t MAX_PRIO = 20;
 
+// 默认 Group 名称
 #define DEFAULT_GROUP_NAME "default_grp"
 
-using CROUTINE_QUEUE = std::vector<std::shared_ptr<CRoutine>>;
-using MULTI_PRIO_QUEUE = std::array<CROUTINE_QUEUE, MAX_PRIO>;
-using CR_GROUP = std::unordered_map<std::string, MULTI_PRIO_QUEUE>;
-using LOCK_QUEUE = std::array<base::AtomicRWLock, MAX_PRIO>;
-using RQ_LOCK_GROUP = std::unordered_map<std::string, LOCK_QUEUE>;
+using CROUTINE_QUEUE = std::vector<std::shared_ptr<CRoutine>>;       // 协程队列
+using MULTI_PRIO_QUEUE = std::array<CROUTINE_QUEUE, MAX_PRIO>;       // 多优先级队列
+using CR_GROUP = std::unordered_map<std::string, MULTI_PRIO_QUEUE>;  // 协程组
+using LOCK_QUEUE = std::array<base::AtomicRWLock, MAX_PRIO>;         // 锁队列
+using RQ_LOCK_GROUP = std::unordered_map<std::string, LOCK_QUEUE>;   // 读写锁组
 
-using GRP_WQ_MUTEX = std::unordered_map<std::string, MutexWrapper>;
-using GRP_WQ_CV = std::unordered_map<std::string, CvWrapper>;
-using NOTIFY_GRP = std::unordered_map<std::string, int>;
+using GRP_WQ_MUTEX = std::unordered_map<std::string, MutexWrapper>;  // 互斥锁组
+using GRP_WQ_CV = std::unordered_map<std::string, CvWrapper>;        // 条件变量组
+using NOTIFY_GRP = std::unordered_map<std::string, int>;             // 通知组
 
+// Classic Context
 class ClassicContext : public ProcessorContext {
  public:
   ClassicContext();
   explicit ClassicContext(const std::string &group_name);
 
+  // 下一协程
   std::shared_ptr<CRoutine> NextRoutine() override;
+  // 等待
   void Wait() override;
+  // 关闭
   void Shutdown() override;
 
+  // 通知
   static void Notify(const std::string &group_name);
+  // 删除协程
   static bool RemoveCRoutine(const std::shared_ptr<CRoutine> &cr);
 
   alignas(CACHELINE_SIZE) static CR_GROUP cr_group_;
@@ -68,17 +76,18 @@ class ClassicContext : public ProcessorContext {
   alignas(CACHELINE_SIZE) static NOTIFY_GRP notify_grp_;
 
  private:
+  // 初始化 Group
   void InitGroup(const std::string &group_name);
 
-  std::chrono::steady_clock::time_point wake_time_;
-  bool need_sleep_ = false;
+  std::chrono::steady_clock::time_point wake_time_;  // 唤醒时间
+  bool need_sleep_ = false;                          // 是否需要休眠
 
-  MULTI_PRIO_QUEUE *multi_pri_rq_ = nullptr;
-  LOCK_QUEUE *lq_ = nullptr;
-  MutexWrapper *mtx_wrapper_ = nullptr;
-  CvWrapper *cw_ = nullptr;
+  MULTI_PRIO_QUEUE *multi_pri_rq_ = nullptr;         // 多优先级队列
+  LOCK_QUEUE *lq_ = nullptr;                         // 锁队列
+  MutexWrapper *mtx_wrapper_ = nullptr;              // 互斥锁包装器
+  CvWrapper *cw_ = nullptr;                          // 条件变量包装器
 
-  std::string current_grp;
+  std::string current_grp;                           // 当前 Group 名称
 };
 
 }  // namespace scheduler

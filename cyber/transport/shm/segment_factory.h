@@ -23,8 +23,10 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// Segement Factory
 class SegmentFactory {
  public:
+  // 创建 Segment
   static SegmentPtr CreateSegment(uint64_t channel_id);
 };
 

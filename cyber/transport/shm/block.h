@@ -24,6 +24,7 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// Block 块
 class Block {
   friend class Segment;
 
@@ -31,28 +32,36 @@ class Block {
   Block();
   virtual ~Block();
 
+  // Message 大小
   uint64_t msg_size() const { return msg_size_; }
   void set_msg_size(uint64_t msg_size) { msg_size_ = msg_size; }
 
+  // Message Information 大小
   uint64_t msg_info_size() const { return msg_info_size_; }
   void set_msg_info_size(uint64_t msg_info_size) {
     msg_info_size_ = msg_info_size;
   }
 
+  // 读写锁
   static const int32_t kRWLockFree;
+  // 写独占
   static const int32_t kWriteExclusive;
+  // 最大尝试加锁次数
   static const int32_t kMaxTryLockTimes;
 
  private:
+  // 加锁
   bool TryLockForWrite();
   bool TryLockForRead();
+  // 解锁
   void ReleaseWriteLock();
   void ReleaseReadLock();
 
+  // 锁状态
   std::atomic<int32_t> lock_num_ = {0};
 
-  uint64_t msg_size_;
-  uint64_t msg_info_size_;
+  uint64_t msg_size_;       // Message 大小
+  uint64_t msg_info_size_;  // Message Information 大小
 };
 
 }  // namespace transport

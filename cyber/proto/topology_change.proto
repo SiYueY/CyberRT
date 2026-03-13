@@ -4,31 +4,35 @@ package apollo.cyber.proto;
 
 import "cyber/proto/role_attributes.proto";
 
+// Change 类型
 enum ChangeType {
-  CHANGE_NODE = 1;
-  CHANGE_CHANNEL = 2;
-  CHANGE_SERVICE = 3;
-  CHANGE_PARTICIPANT = 4;
+  CHANGE_NODE = 1;         // Node
+  CHANGE_CHANNEL = 2;      // Channel
+  CHANGE_SERVICE = 3;      // Service
+  CHANGE_PARTICIPANT = 4;  // Participant
 };
 
+// Operation 类型
 enum OperateType {
-  OPT_JOIN = 1;
-  OPT_LEAVE = 2;
+  OPT_JOIN = 1;   // Join
+  OPT_LEAVE = 2;  // Leave
 };
 
+// Role 类型
 enum RoleType {
-  ROLE_NODE = 1;
-  ROLE_WRITER = 2;
-  ROLE_READER = 3;
-  ROLE_SERVER = 4;
-  ROLE_CLIENT = 5;
-  ROLE_PARTICIPANT = 6;
+  ROLE_NODE = 1;         // Node
+  ROLE_WRITER = 2;       // Writer
+  ROLE_READER = 3;       // Reader
+  ROLE_SERVER = 4;       // Server
+  ROLE_CLIENT = 5;       // Client
+  ROLE_PARTICIPANT = 6;  // Participant
 };
 
+// Change Message
 message ChangeMsg {
-  optional uint64 timestamp = 1;
-  optional ChangeType change_type = 2;
-  optional OperateType operate_type = 3;
-  optional RoleType role_type = 4;
-  optional RoleAttributes role_attr = 5;
+  optional uint64 timestamp = 1;          // 时间戳
+  optional ChangeType change_type = 2;    // Change 类型
+  optional OperateType operate_type = 3;  // Operation 类型
+  optional RoleType role_type = 4;        // Role 类型
+  optional RoleAttributes role_attr = 5;  // Role 属性
 };

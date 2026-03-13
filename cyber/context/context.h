@@ -25,6 +25,7 @@ namespace apollo {
 namespace cyber {
 namespace context {
 
+// 上下文
 class Context {
  public:
   Context() = default;

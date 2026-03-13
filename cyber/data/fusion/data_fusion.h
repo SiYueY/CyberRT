@@ -31,6 +31,7 @@ namespace cyber {
 namespace data {
 namespace fusion {
 
+// 数据融合
 template <typename M0, typename M1 = NullType, typename M2 = NullType,
           typename M3 = NullType>
 class DataFusion {

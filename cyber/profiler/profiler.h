@@ -34,17 +34,23 @@ namespace profiler {
 #define AFUNC __func__
 #endif
 
+// Concatenate two tokens
 #define TOKEN_JOIN(x, y) x ## y
+
+// Unique name for each block
 #define UNIQUE_NAME(x) TOKEN_JOIN(prefix_perf, x)
 
+// Start performance block macro
 #define PERF_BLOCK(name, ...)                                    \
   apollo::cyber::profiler::Block UNIQUE_NAME(__LINE__)(name);    \
   apollo::cyber::profiler::BlockManager::Instance()->StartBlock( \
       &UNIQUE_NAME(__LINE__));
 
+// End performance block macro
 #define PERF_BLOCK_END \
   apollo::cyber::profiler::BlockManager::Instance()->EndBlock();
 
+// Start performance function macro
 #define PERF_FUNCTION(...) PERF_BLOCK(AFUNC, ## __VA_ARGS__)
 
 #else

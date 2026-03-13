@@ -2,24 +2,28 @@ syntax = "proto2";
 
 package apollo.cyber.proto;
 
+// Qos 历史策略
 enum QosHistoryPolicy {
-  HISTORY_SYSTEM_DEFAULT = 0;
-  HISTORY_KEEP_LAST = 1;
-  HISTORY_KEEP_ALL = 2;
+  HISTORY_SYSTEM_DEFAULT = 0;  // System default
+  HISTORY_KEEP_LAST      = 1;  // Keep last
+  HISTORY_KEEP_ALL       = 2;  // Keep all
 };
 
+// Qos 可靠性策略
 enum QosReliabilityPolicy {
-  RELIABILITY_SYSTEM_DEFAULT = 0;
-  RELIABILITY_RELIABLE = 1;
-  RELIABILITY_BEST_EFFORT = 2;
+  RELIABILITY_SYSTEM_DEFAULT = 0;  // System default
+  RELIABILITY_RELIABLE       = 1;  // Reliable
+  RELIABILITY_BEST_EFFORT    = 2;  // Best effort
 };
 
+// Qos 持久性策略
 enum QosDurabilityPolicy {
-  DURABILITY_SYSTEM_DEFAULT = 0;
-  DURABILITY_TRANSIENT_LOCAL = 1;
-  DURABILITY_VOLATILE = 2;
+  DURABILITY_SYSTEM_DEFAULT  = 0;  // System default
+  DURABILITY_TRANSIENT_LOCAL = 1;  // Transient local
+  DURABILITY_VOLATILE        = 2;  // Volatile
 };
 
+// Qos 配置
 message QosProfile {
   optional QosHistoryPolicy history = 1 [default = HISTORY_KEEP_LAST];
   optional uint32 depth = 2 [default = 1];  // capacity of history

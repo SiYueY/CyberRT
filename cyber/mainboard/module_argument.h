@@ -28,7 +28,9 @@ namespace apollo {
 namespace cyber {
 namespace mainboard {
 
+// 默认 Process Group
 static const char DEFAULT_process_group_[] = "mainboard_default";
+// 默认调度策略
 static const char DEFAULT_sched_name_[] = "CYBER_DEFAULT";
 
 // code for command line arguments without short parameters
@@ -56,15 +58,23 @@ class ModuleArgument {
   const bool& GetDisablePluginsAutoLoad() const;
 
  private:
+  // DAG 配置
   std::list<std::string> dag_conf_list_;
+  // 插件描述信息
   std::list<std::string> plugin_description_list_;
+  // 二进制模块名称
   std::string binary_name_;
+  // Process Group
   std::string process_group_;
+  // 调度策略
   std::string sched_name_;
+  // CPU 性能分析
   bool enable_cpuprofile_ = false;
   std::string profile_filename_;
+  // Heap 内存分析
   bool enable_heapprofile_ = false;
   std::string heapprofile_filename_;
+  // 插件自动加载
   bool disable_plugin_autoload_ = false;
 };
 

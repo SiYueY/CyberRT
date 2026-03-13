@@ -192,6 +192,7 @@ bool IsLibraryLoaded(const std::string& library_path,
 }
 
 bool LoadLibrary(const std::string& library_path, ClassLoader* loader) {
+  // 避免重复加载
   if (IsLibraryLoadedByAnybody(library_path)) {
     AINFO << "lib has been loaded by others,only attach to class factory obj."
           << library_path;
@@ -211,6 +212,7 @@ bool LoadLibrary(const std::string& library_path, ClassLoader* loader) {
     try {
       SetCurActiveClassLoader(loader);
       SetCurLoadingLibraryName(library_path);
+      // 加载动态库
       shared_library = SharedLibraryPtr(new SharedLibrary(library_path));
     } catch (const LibraryLoadException& e) {
       SetCurLoadingLibraryName("");

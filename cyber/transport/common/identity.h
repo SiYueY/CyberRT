@@ -25,14 +25,17 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// 标识符数据长度, 即 UUID 长度
 constexpr uint8_t ID_SIZE = 8;
 
+// Identity: 标识符
 class Identity {
  public:
   explicit Identity(bool need_generate = true);
   Identity(const Identity& another);
   virtual ~Identity();
 
+  // 重载运算符
   Identity& operator=(const Identity& another);
   bool operator==(const Identity& another) const;
   bool operator!=(const Identity& another) const;
@@ -53,8 +56,8 @@ class Identity {
  private:
   void Update();
 
-  char data_[ID_SIZE];
-  uint64_t hash_value_;
+  char data_[ID_SIZE];   // UUID
+  uint64_t hash_value_;  // 哈希值
 };
 
 }  // namespace transport

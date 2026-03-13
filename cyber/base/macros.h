@@ -22,6 +22,7 @@
 
 // #define eprosima eprosima_wrap
 
+// 分支预测优化
 #if __GNUC__ >= 3
 #define cyber_likely(x) (__builtin_expect((x), 1))
 #define cyber_unlikely(x) (__builtin_expect((x), 0))
@@ -50,6 +51,7 @@
   template <typename T>                                   \
   constexpr bool name<T>::value;
 
+// 自旋等待 spin-wait 优化
 inline void cpu_relax() {
 #if defined(__aarch64__)
   asm volatile("yield" ::: "memory");

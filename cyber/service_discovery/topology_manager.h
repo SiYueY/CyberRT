@@ -46,7 +46,7 @@ class ServiceManager;
 using ServiceManagerPtr = std::shared_ptr<ServiceManager>;
 
 /**
- * @class TopologyManager
+ * @class TopologyManager 拓扑结构管理器
  * @brief elements in Cyber -- Node, Channel, Service, Writer, Reader, Client
  * and Server's relationship is presented by Topology. You can Imagine that a
  * directed graph -- Node is the container of Server/Client/Writer/Reader, and
@@ -107,29 +107,31 @@ class TopologyManager {
   ServiceManagerPtr& service_manager() { return service_manager_; }
 
  private:
+  // 初始化
   bool Init();
-
   bool InitNodeManager();
   bool InitChannelManager();
   bool InitServiceManager();
 
+  // 处理节点变化
   bool CreateParticipant();
   void OnParticipantChange(
       const eprosima::fastrtps::rtps::ParticipantDiscoveryInfo& info);
+  // 转换 fastrtps::rtps::ParticipantDiscoveryInfo 成为 ChangeMsg
   bool Convert(const eprosima::fastrtps::rtps::ParticipantDiscoveryInfo& info,
                ChangeMsg* change_msg);
   bool ParseParticipantName(const std::string& participant_name,
                             std::string* host_name, int* process_id);
 
-  std::atomic<bool> init_;             /// Is TopologyManager inited
-  NodeManagerPtr node_manager_;        /// shared ptr of NodeManager
-  ChannelManagerPtr channel_manager_;  /// shared ptr of ChannelManager
-  ServiceManagerPtr service_manager_;  /// shared ptr of ServiceManager
-  ParticipantPtr participant_;
-  ChangeSignal change_signal_;           /// topology changing signal,
-                                         ///< connect to `ChangeFunc`s
-  PartNameContainer participant_names_;  /// other participant in the topology
+  std::atomic<bool> init_;               /// 是否初始化
+  NodeManagerPtr node_manager_;          /// Node Manager
+  ChannelManagerPtr channel_manager_;    /// Channel Manager
+  ServiceManagerPtr service_manager_;    // Service Manager
+  ParticipantPtr participant_;           // RTPS Participant
+  ChangeSignal change_signal_;           // 拓扑结构变化 Signal
+  PartNameContainer participant_names_;  // Participant 名称映射表
 
+  // 单例模式
   DECLARE_SINGLETON(TopologyManager)
 };
 

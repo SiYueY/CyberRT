@@ -34,6 +34,7 @@ namespace data {
 using apollo::cyber::Time;
 using apollo::cyber::base::AtomicHashMap;
 
+// 数据分发
 template <typename T>
 class DataDispatcher {
  public:
@@ -41,15 +42,20 @@ class DataDispatcher {
       std::vector<std::weak_ptr<CacheBuffer<std::shared_ptr<T>>>>;
   ~DataDispatcher() {}
 
+  // 添加 ChannelBuffer
   void AddBuffer(const ChannelBuffer<T>& channel_buffer);
 
+  // 分发 Message
   bool Dispatch(const uint64_t channel_id, const std::shared_ptr<T>& msg);
 
  private:
+  // DataNotifier 单例
   DataNotifier* notifier_ = DataNotifier::Instance();
+  // Hash Tabel: <Channel ID, Cache Buffer>
   std::mutex buffers_map_mutex_;
   AtomicHashMap<uint64_t, BufferVector> buffers_map_;
 
+  // 单例模式
   DECLARE_SINGLETON(DataDispatcher)
 };
 

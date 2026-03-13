@@ -25,12 +25,16 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// Notifier Factory
 class NotifierFactory {
  public:
+  // 创建 Notifier
   static NotifierPtr CreateNotifier();
 
  private:
+  // 创建 Condition Notifier
   static NotifierPtr CreateConditionNotifier();
+  // 创建 Multicast Notifier
   static NotifierPtr CreateMulticastNotifier();
 };
 

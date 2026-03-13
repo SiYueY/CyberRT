@@ -47,38 +47,52 @@ namespace transport {
 
 using apollo::cyber::proto::OptionalMode;
 
+// Transport 通信机制
 class Transport {
  public:
   virtual ~Transport();
 
+  // 关闭
   void Shutdown();
 
+  // 创建发送器 Transmitter
   template <typename M>
   auto CreateTransmitter(const RoleAttributes& attr,
                          const OptionalMode& mode = OptionalMode::HYBRID) ->
       typename std::shared_ptr<Transmitter<M>>;
 
+  // 创建接收器 Receiver
   template <typename M>
   auto CreateReceiver(const RoleAttributes& attr,
                       const typename Receiver<M>::MessageListener& msg_listener,
                       const OptionalMode& mode = OptionalMode::HYBRID) ->
       typename std::shared_ptr<Receiver<M>>;
 
+  // 获取 Participant
   ParticipantPtr participant() const { return participant_; }
 
  private:
+  // 创建 Participant
   void CreateParticipant();
 
+  // 是否已经关闭
   std::atomic<bool> is_shutdown_ = {false};
+  // 参与者 Participant
   ParticipantPtr participant_ = nullptr;
+  // 通知器 Notifier
   NotifierPtr notifier_ = nullptr;
+  // INTRA
   IntraDispatcherPtr intra_dispatcher_ = nullptr;
+  // SHM
   ShmDispatcherPtr shm_dispatcher_ = nullptr;
+  // RTPS
   RtpsDispatcherPtr rtps_dispatcher_ = nullptr;
 
+  // 单例模式
   DECLARE_SINGLETON(Transport)
 };
 
+// 创建发送器 Transmitter
 template <typename M>
 auto Transport::CreateTransmitter(const RoleAttributes& attr,
                                   const OptionalMode& mode) ->
@@ -96,19 +110,20 @@ auto Transport::CreateTransmitter(const RoleAttributes& attr,
   }
 
   switch (mode) {
+    // INTRA
     case OptionalMode::INTRA:
       transmitter = std::make_shared<IntraTransmitter<M>>(modified_attr);
       break;
-
+    // 共享内存
     case OptionalMode::SHM:
       transmitter = std::make_shared<ShmTransmitter<M>>(modified_attr);
       break;
-
+    // RTPS
     case OptionalMode::RTPS:
       transmitter =
           std::make_shared<RtpsTransmitter<M>>(modified_attr, participant());
       break;
-
+    // 默认: 混合模式
     default:
       transmitter =
           std::make_shared<HybridTransmitter<M>>(modified_attr, participant());
@@ -122,6 +137,7 @@ auto Transport::CreateTransmitter(const RoleAttributes& attr,
   return transmitter;
 }
 
+// 创建接收器 Receiver
 template <typename M>
 auto Transport::CreateReceiver(
     const RoleAttributes& attr,
@@ -140,19 +156,20 @@ auto Transport::CreateReceiver(
   }
 
   switch (mode) {
+    // INTRA
     case OptionalMode::INTRA:
       receiver =
           std::make_shared<IntraReceiver<M>>(modified_attr, msg_listener);
       break;
-
+    // 共享内存
     case OptionalMode::SHM:
       receiver = std::make_shared<ShmReceiver<M>>(modified_attr, msg_listener);
       break;
-
+    // RTPS
     case OptionalMode::RTPS:
       receiver = std::make_shared<RtpsReceiver<M>>(modified_attr, msg_listener);
       break;
-
+    // 默认: 混合模式
     default:
       receiver = std::make_shared<HybridReceiver<M>>(
           modified_attr, msg_listener, participant());

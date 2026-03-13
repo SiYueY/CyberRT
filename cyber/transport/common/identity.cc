@@ -64,6 +64,7 @@ size_t Identity::Length() const { return ID_SIZE; }
 uint64_t Identity::HashValue() const { return hash_value_; }
 
 void Identity::Update() {
+  // uuid -> string -> hash
   hash_value_ = common::Hash(std::string(data_, ID_SIZE));
 }
 

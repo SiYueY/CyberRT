@@ -41,57 +41,68 @@ using apollo::cyber::base::WriteLockGuard;
 class ListenerHandlerBase;
 using ListenerHandlerBasePtr = std::shared_ptr<ListenerHandlerBase>;
 
+// ListenerHandler 基类
 class ListenerHandlerBase {
  public:
   ListenerHandlerBase() {}
   virtual ~ListenerHandlerBase() {}
 
+  // 断开连接
   virtual void Disconnect(uint64_t self_id) = 0;
   virtual void Disconnect(uint64_t self_id, uint64_t oppo_id) = 0;
+  // 是否为原始消息
   inline bool IsRawMessage() const { return is_raw_message_; }
   virtual void RunFromString(const std::string& str,
                              const MessageInfo& msg_info) = 0;
 
  protected:
+  // 是否为原始消息
   bool is_raw_message_ = false;
 };
 
+// ListenerHandler
 template <typename MessageT>
 class ListenerHandler : public ListenerHandlerBase {
  public:
-  using Message = std::shared_ptr<MessageT>;
-  using MessageSignal = base::Signal<const Message&, const MessageInfo&>;
+  // Message
+  using Message = std::shared_ptr<MessageT>;                               // 消息类型
+  using MessageSignal = base::Signal<const Message&, const MessageInfo&>;  // 消息信号
 
+  // Listener
   using Listener = std::function<void(const Message&, const MessageInfo&)>;
+
+  // Connection
   using MessageConnection =
-      base::Connection<const Message&, const MessageInfo&>;
-  using ConnectionMap = std::unordered_map<uint64_t, MessageConnection>;
+      base::Connection<const Message&, const MessageInfo&>;               // 消息连接
+  using ConnectionMap = std::unordered_map<uint64_t, MessageConnection>;  // 连接映射
 
   ListenerHandler() {}
   virtual ~ListenerHandler() {}
 
+  // 连接
   void Connect(uint64_t self_id, const Listener& listener);
   void Connect(uint64_t self_id, uint64_t oppo_id, const Listener& listener);
-
+  // 断开连接
   void Disconnect(uint64_t self_id) override;
   void Disconnect(uint64_t self_id, uint64_t oppo_id) override;
-
+  // 运行
   void Run(const Message& msg, const MessageInfo& msg_info);
   void RunFromString(const std::string& str,
                      const MessageInfo& msg_info) override;
 
  private:
-  using SignalPtr = std::shared_ptr<MessageSignal>;
-  using MessageSignalMap = std::unordered_map<uint64_t, SignalPtr>;
+  using SignalPtr = std::shared_ptr<MessageSignal>;                  // 信号指针
+  using MessageSignalMap = std::unordered_map<uint64_t, SignalPtr>;  // 消息信号映射
+
   // used for self_id
-  MessageSignal signal_;
-  ConnectionMap signal_conns_;  // key: self_id
+  MessageSignal signal_;        // 信号
+  ConnectionMap signal_conns_;  // 连接列表 [self_id, Connection]
 
   // used for self_id and oppo_id
   MessageSignalMap signals_;  // key: oppo_id
   // key: oppo_id
   std::unordered_map<uint64_t, ConnectionMap> signals_conns_;
-
+  // RWLock 读写锁
   base::AtomicRWLock rw_lock_;
 };
 

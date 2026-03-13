@@ -36,37 +36,45 @@ namespace scheduler {
 
 using croutine::CRoutine;
 
+// 快照
 struct Snapshot {
-  std::atomic<uint64_t> execute_start_time = {0};
-  std::atomic<pid_t> processor_id = {0};
-  std::string routine_name;
+  std::atomic<uint64_t> execute_start_time = {0};  // 开始执行时间
+  std::atomic<pid_t> processor_id = {0};           // 进程 ID
+  std::string routine_name;                        // 协程名称
 };
 
+// 进程
 class Processor {
  public:
   Processor();
   virtual ~Processor();
 
+  // 运行
   void Run();
+  // 停止
   void Stop();
+  // 绑定上下文
   void BindContext(const std::shared_ptr<ProcessorContext>& context);
+  // 线程
   std::thread* Thread() { return &thread_; }
+  // 线程 ID
   std::atomic<pid_t>& Tid();
 
+  // 进程快照
   std::shared_ptr<Snapshot> ProcSnapshot() { return snap_shot_; }
 
  private:
-  std::shared_ptr<ProcessorContext> context_;
+  std::shared_ptr<ProcessorContext> context_;                           // 上下文
 
-  std::condition_variable cv_ctx_;
-  std::once_flag thread_flag_;
-  std::mutex mtx_ctx_;
-  std::thread thread_;
+  std::condition_variable cv_ctx_;                                      // 条件变量
+  std::once_flag thread_flag_;                                          // 线程标志
+  std::mutex mtx_ctx_;                                                  // 互斥锁
+  std::thread thread_;                                                  // 线程
 
-  std::atomic<pid_t> tid_{-1};
-  std::atomic<bool> running_{false};
+  std::atomic<pid_t> tid_{-1};                                          // 线程 ID
+  std::atomic<bool> running_{false};                                    // 运行标志
 
-  std::shared_ptr<Snapshot> snap_shot_ = std::make_shared<Snapshot>();
+  std::shared_ptr<Snapshot> snap_shot_ = std::make_shared<Snapshot>();  // 快照
 };
 
 }  // namespace scheduler

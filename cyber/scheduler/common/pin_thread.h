@@ -27,11 +27,14 @@ namespace apollo {
 namespace cyber {
 namespace scheduler {
 
+// 解析 CPU Set
 void ParseCpuset(const std::string& str, std::vector<int>* cpuset);
 
+// 设置线程 CPU 亲和性
 void SetSchedAffinity(std::thread* thread, const std::vector<int>& cpus,
                       const std::string& affinity, int cpu_id = -1);
 
+// 设置线程调度策略
 void SetSchedPolicy(std::thread* thread, std::string spolicy,
                     int sched_priority, pid_t tid = -1);
 

@@ -33,6 +33,7 @@ namespace apollo {
 namespace cyber {
 namespace service_discovery {
 
+// Subscriber Listener
 class SubscriberListener : public eprosima::fastdds::dds::SubscriberListener {
  public:
   explicit SubscriberListener(
@@ -40,14 +41,18 @@ class SubscriberListener : public eprosima::fastdds::dds::SubscriberListener {
   virtual ~SubscriberListener();
 
   void on_data_available(eprosima::fastdds::dds::DataReader* reader) override;
+
   void on_subscription_matched(
       eprosima::fastdds::dds::DataReader* reader,
       const eprosima::fastdds::dds::SubscriptionMatchedStatus& info)
       override;  // NOLINT
 
  private:
+  // 回调函数
   transport::rtps::subsciber_callback callback_;
+  // Message 信息
   transport::MessageInfo msg_info_;
+  // 互斥锁
   std::mutex mutex_;
 };
 

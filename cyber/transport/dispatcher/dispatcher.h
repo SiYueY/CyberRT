@@ -52,13 +52,16 @@ template <typename MessageT>
 using MessageListener =
     std::function<void(const std::shared_ptr<MessageT>&, const MessageInfo&)>;
 
+// Dispatcher: 分发器
 class Dispatcher {
  public:
   Dispatcher();
   virtual ~Dispatcher();
 
+  // 关闭
   virtual void Shutdown();
 
+  // 注册监听器 Listener
   template <typename MessageT>
   void AddListener(const RoleAttributes& self_attr,
                    const MessageListener<MessageT>& listener);
@@ -68,6 +71,7 @@ class Dispatcher {
                    const RoleAttributes& opposite_attr,
                    const MessageListener<MessageT>& listener);
 
+  // 注销监听器 Listener
   template <typename MessageT>
   void RemoveListener(const RoleAttributes& self_attr);
 
@@ -75,12 +79,14 @@ class Dispatcher {
   void RemoveListener(const RoleAttributes& self_attr,
                       const RoleAttributes& opposite_attr);
 
+  // 是否存在 Channle
   bool HasChannel(uint64_t channel_id);
 
  protected:
   std::atomic<bool> is_shutdown_;
-  // key: channel_id of message
+  // HashMap: channel_id -> ListenerHandlerBasePtr
   AtomicHashMap<uint64_t, ListenerHandlerBasePtr> msg_listeners_;
+  // RWLock: 读写锁
   base::AtomicRWLock rw_lock_;
 };
 

@@ -30,14 +30,18 @@ namespace scheduler {
 
 using croutine::CRoutine;
 
+// 进程上下文
 class ProcessorContext {
  public:
+  // 关闭
   virtual void Shutdown();
+  // 下一协程
   virtual std::shared_ptr<CRoutine> NextRoutine() = 0;
+  // 等待
   virtual void Wait() = 0;
 
  protected:
-  std::atomic<bool> stop_{false};
+  std::atomic<bool> stop_{false};  // 停止标志
 };
 
 }  // namespace scheduler

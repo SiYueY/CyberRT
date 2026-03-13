@@ -26,11 +26,15 @@ namespace apollo {
 namespace cyber {
 namespace data {
 
+// Cache Buffer: 缓存队列
 template <typename T>
 class CacheBuffer {
  public:
+  // 数据类型
   using value_type = T;
+  // 大小类型
   using size_type = std::size_t;
+  // 融合回调
   using FusionCallback = std::function<void(const T&)>;
 
   explicit CacheBuffer(uint64_t size) {
@@ -50,8 +54,11 @@ class CacheBuffer {
   T& operator[](const uint64_t& pos) { return buffer_[GetIndex(pos)]; }
   const T& at(const uint64_t& pos) const { return buffer_[GetIndex(pos)]; }
 
+  // 队头
   uint64_t Head() const { return head_ + 1; }
+  // 队尾
   uint64_t Tail() const { return tail_; }
+  // 队列大小
   uint64_t Size() const { return tail_ - head_; }
 
   const T& Front() const { return buffer_[GetIndex(head_ + 1)]; }
@@ -61,14 +68,17 @@ class CacheBuffer {
   bool Full() const { return capacity_ - 1 == tail_ - head_; }
   uint64_t Capacity() const { return capacity_; }
 
+  // 设置融合回调
   void SetFusionCallback(const FusionCallback& callback) {
     fusion_callback_ = callback;
   }
 
   void Fill(const T& value) {
     if (fusion_callback_) {
+      // 融合回调
       fusion_callback_(value);
     } else {
+      // 循环队列
       if (Full()) {
         buffer_[GetIndex(head_)] = value;
         ++head_;
@@ -80,17 +90,24 @@ class CacheBuffer {
     }
   }
 
+  // 互斥锁
   std::mutex& Mutex() { return mutex_; }
 
  private:
   CacheBuffer& operator=(const CacheBuffer& other) = delete;
   uint64_t GetIndex(const uint64_t& pos) const { return pos % capacity_; }
 
+  // 队头索引
   uint64_t head_ = 0;
+  // 队尾索引
   uint64_t tail_ = 0;
+  // 容量
   uint64_t capacity_ = 0;
+  // 缓存数组
   std::vector<T> buffer_;
+  // 互斥锁
   mutable std::mutex mutex_;
+  // 融合回调
   FusionCallback fusion_callback_;
 };
 

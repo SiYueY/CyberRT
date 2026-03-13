@@ -34,6 +34,7 @@ namespace apollo {
 namespace cyber {
 namespace plugin_manager {
 
+// Plugin Manager: 插件管理器
 class PluginManager {
  public:
   ~PluginManager();

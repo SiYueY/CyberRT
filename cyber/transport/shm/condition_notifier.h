@@ -30,20 +30,26 @@ namespace transport {
 
 const uint32_t kBufLength = 4096;
 
+// Condition Notifier: 条件变量通知器
 class ConditionNotifier : public NotifierBase {
+
+  // Indicator: 指示器
   struct Indicator {
-    std::atomic<uint64_t> next_seq = {0};
-    ReadableInfo infos[kBufLength];
-    uint64_t seqs[kBufLength] = {0};
+    std::atomic<uint64_t> next_seq = {0};  // 下一序列号
+    ReadableInfo infos[kBufLength];        // 通知信息
+    uint64_t seqs[kBufLength] = {0};       // 序列号
   };
 
  public:
   virtual ~ConditionNotifier();
 
+  // 关闭
   void Shutdown() override;
+  // 通知
   bool Notify(const ReadableInfo& info) override;
+  // 监听
   bool Listen(int timeout_ms, ReadableInfo* info) override;
-
+  // 类型
   static const char* Type() { return "condition"; }
 
  private:
@@ -53,13 +59,14 @@ class ConditionNotifier : public NotifierBase {
   bool Remove();
   void Reset();
 
-  key_t key_ = 0;
-  void* managed_shm_ = nullptr;
-  size_t shm_size_ = 0;
-  Indicator* indicator_ = nullptr;
-  uint64_t next_seq_ = 0;
-  std::atomic<bool> is_shutdown_ = {false};
+  key_t key_ = 0;                            // 共享内存 key
+  void* managed_shm_ = nullptr;              // 管理共享内存
+  size_t shm_size_ = 0;                      // 共享内存大小
+  Indicator* indicator_ = nullptr;           // 指示器
+  uint64_t next_seq_ = 0;                    // 下一序列号
+  std::atomic<bool> is_shutdown_ = {false};  // 是否关闭
 
+  // 单例模式
   DECLARE_SINGLETON(ConditionNotifier)
 };
 

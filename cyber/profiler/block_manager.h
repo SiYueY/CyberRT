@@ -45,6 +45,7 @@ class BlockManager {
  private:
   static thread_local RoutineFrameMap routine_frame_map_;
 
+  // 单例模式
   DECLARE_SINGLETON(BlockManager)
 };
 

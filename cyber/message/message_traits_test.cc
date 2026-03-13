@@ -31,12 +31,15 @@ class Data {
   std::string content;
 };
 
+// Message
 class Message {
  public:
-  std::string content;
+  std::string content;  // message content
 
+  // Message size in bytes.
   std::size_t ByteSizeLong() const { return content.size(); }
 
+  // [数组格式]序列化
   bool SerializeToArray(void* data, int size) const {
     if (data == nullptr || size < 0 ||
         static_cast<size_t>(size) < ByteSizeLong()) {
@@ -47,11 +50,13 @@ class Message {
     return true;
   }
 
+  // [字符串格式]序列化
   bool SerializeToString(std::string* str) const {
     *str = content;
     return true;
   }
 
+  // [数组格式]反序列化
   bool ParseFromArray(const void* data, int size) {
     if (data == nullptr || size <= 0) {
       return false;
@@ -60,6 +65,7 @@ class Message {
     return true;
   }
 
+  // [字符串格式]反序列化
   bool ParseFromString(const std::string& str) {
     content = str;
     return true;

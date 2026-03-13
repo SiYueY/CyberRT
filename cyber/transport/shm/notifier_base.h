@@ -28,12 +28,16 @@ namespace transport {
 class NotifierBase;
 using NotifierPtr = NotifierBase*;
 
+// Notifier 基类
 class NotifierBase {
  public:
   virtual ~NotifierBase() = default;
 
+  // 关闭
   virtual void Shutdown() = 0;
+  // 通知
   virtual bool Notify(const ReadableInfo& info) = 0;
+  // 监听
   virtual bool Listen(int timeout_ms, ReadableInfo* info) = 0;
 };
 

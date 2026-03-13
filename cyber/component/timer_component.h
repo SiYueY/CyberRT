@@ -45,8 +45,13 @@ class TimerComponent : public ComponentBase {
    * @return returns true if successful, otherwise returns false
    */
   bool Initialize(const TimerComponentConfig& config) override;
+  
   void Clear() override;
+  
+  // Process
   bool Process();
+
+  // 获取时间间隔
   uint32_t GetInterval() const;
 
  private:
@@ -57,7 +62,9 @@ class TimerComponent : public ComponentBase {
    */
   virtual bool Proc() = 0;
 
+  // 时间间隔
   uint32_t interval_ = 0;
+  // 定时器
   std::unique_ptr<Timer> timer_;
 };
 

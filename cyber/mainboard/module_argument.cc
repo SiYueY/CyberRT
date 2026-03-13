@@ -71,6 +71,7 @@ void ModuleArgument::ParseArgument(const int argc, char* const argv[]) {
     sched_name_ = DEFAULT_sched_name_;
   }
 
+  // CPU 性能分析
   if (enable_cpuprofile_ && profile_filename_.empty()) {
     auto pwd = common::GetEnv("PWD");
     profile_filename_ = pwd + "/" + process_group_ + std::string("_cpu.prof");
@@ -81,6 +82,7 @@ void ModuleArgument::ParseArgument(const int argc, char* const argv[]) {
     profile_filename_ = pwd + "/" + profile_filename_;
   }
 
+  // Heap 内存分析
   if (enable_heapprofile_ && heapprofile_filename_.empty()) {
     auto pwd = common::GetEnv("PWD");
     heapprofile_filename_ =
@@ -92,8 +94,12 @@ void ModuleArgument::ParseArgument(const int argc, char* const argv[]) {
     heapprofile_filename_ = pwd + "/" + heapprofile_filename_;
   }
 
+  // Process Group
   GlobalData::Instance()->SetProcessGroup(process_group_);
+
+  // 调度策略
   GlobalData::Instance()->SetSchedName(sched_name_);
+
   AINFO << "binary_name_ is " << binary_name_ << ", process_group_ is "
         << process_group_ << ", has " << dag_conf_list_.size() << " dag conf";
   for (std::string& dag : dag_conf_list_) {

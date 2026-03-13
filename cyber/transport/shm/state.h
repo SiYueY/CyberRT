@@ -26,11 +26,13 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// State: 状态
 class State {
  public:
   explicit State(const uint64_t& ceiling_msg_size);
   virtual ~State();
 
+  // 减少引用计数
   void DecreaseReferenceCounts() {
     uint32_t current_reference_count = reference_count_.load();
     do {
@@ -41,6 +43,7 @@ class State {
         current_reference_count, current_reference_count - 1));
   }
 
+  // 增加引用计数
   void IncreaseReferenceCounts() { reference_count_.fetch_add(1); }
 
   uint32_t FetchAddSeq(uint32_t diff) { return seq_.fetch_add(diff); }
@@ -59,10 +62,10 @@ class State {
 
  private:
   std::atomic<bool> need_remap_ = {false};
-  std::atomic<uint32_t> seq_ = {0};
-  std::atomic<uint32_t> arena_seq_ = {0};
-  std::atomic<uint32_t> reference_count_ = {0};
-  std::atomic<uint64_t> ceiling_msg_size_;
+  std::atomic<uint32_t> seq_ = {0};              // 序列号
+  std::atomic<uint32_t> arena_seq_ = {0};        // Arena 序列号
+  std::atomic<uint32_t> reference_count_ = {0};  // 引用计数
+  std::atomic<uint64_t> ceiling_msg_size_;       // 最大消息大小
 };
 
 }  // namespace transport

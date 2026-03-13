@@ -23,6 +23,7 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// Xsi Segment
 class XsiSegment : public Segment {
  public:
   explicit XsiSegment(uint64_t channel_id);

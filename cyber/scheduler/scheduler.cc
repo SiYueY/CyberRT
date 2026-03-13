@@ -47,17 +47,21 @@ bool Scheduler::CreateTask(std::function<void()>&& func,
     return false;
   }
 
+  // 任务 ID
   auto task_id = GlobalData::RegisterTaskName(name);
 
+  // 创建协程 Routine
   auto cr = std::make_shared<CRoutine>(func);
   cr->set_id(task_id);
   cr->set_name(name);
   AINFO << "create croutine: " << name;
 
+  // 分发任务
   if (!DispatchTask(cr)) {
     return false;
   }
 
+  // 注册 Notify 用于唤醒任务
   if (visitor != nullptr) {
     visitor->RegisterNotifyCallback([this, task_id]() {
       if (cyber_unlikely(stop_.load())) {

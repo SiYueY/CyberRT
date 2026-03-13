@@ -34,22 +34,28 @@ using apollo::cyber::croutine::CRoutine;
 using apollo::cyber::proto::ClassicConf;
 using apollo::cyber::proto::ClassicTask;
 
+// Scheduler Classic
 class SchedulerClassic : public Scheduler {
  public:
+  // 删除 CRoutine
   bool RemoveCRoutine(uint64_t crid) override;
+  // 删除 Task
   bool RemoveTask(const std::string& name) override;
+  // 分发 Task
   bool DispatchTask(const std::shared_ptr<CRoutine>&) override;
 
  private:
   friend Scheduler* Instance();
   SchedulerClassic();
 
+  // 创建 Processor
   void CreateProcessor();
+  // 通知 Processor
   bool NotifyProcessor(uint64_t crid) override;
 
-  std::unordered_map<std::string, ClassicTask> cr_confs_;
+  std::unordered_map<std::string, ClassicTask> cr_confs_;  // CRoutine 配置
 
-  ClassicConf classic_conf_;
+  ClassicConf classic_conf_;  // Classic 配置
 };
 
 }  // namespace scheduler

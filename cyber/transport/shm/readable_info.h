@@ -29,6 +29,7 @@ namespace transport {
 class ReadableInfo;
 using ReadableInfoPtr = std::shared_ptr<ReadableInfo>;
 
+// Readable information
 class ReadableInfo {
  public:
   ReadableInfo();
@@ -38,30 +39,35 @@ class ReadableInfo {
 
   ReadableInfo& operator=(const ReadableInfo& other);
 
+  // 序列化 / 反序列化
   bool DeserializeFrom(const std::string& src);
   bool DeserializeFrom(const char* src, std::size_t len);
   bool SerializeTo(std::string* dst) const;
 
+  // 主机 ID
   uint64_t host_id() const { return host_id_; }
   void set_host_id(uint64_t host_id) { host_id_ = host_id; }
 
+  // Block index
   int32_t block_index() const { return block_index_; }
   void set_block_index(int32_t block_index) { block_index_ = block_index; }
 
+  // Arena block index
   int32_t arena_block_index() const { return arena_block_index_; }
   void set_arena_block_index(
     int32_t arena_block_index) { arena_block_index_ = arena_block_index; }
 
+  // Channel ID
   uint64_t channel_id() const { return channel_id_; }
   void set_channel_id(uint64_t channel_id) { channel_id_ = channel_id; }
 
   static const size_t kSize;
 
  private:
-  uint64_t host_id_;
-  int32_t block_index_;
-  int32_t arena_block_index_;
-  uint64_t channel_id_;
+  uint64_t host_id_;           // 主机 ID
+  int32_t block_index_;        // Block index
+  int32_t arena_block_index_;  // Arena block index
+  uint64_t channel_id_;        // Channel ID
 };
 
 }  // namespace transport

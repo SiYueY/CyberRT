@@ -124,6 +124,7 @@ template <typename T>
 typename std::enable_if<!HasSetType<T>::value, void>::type SetTypeName(
     const std::string& type_name, T* message) {}
 
+// Message size    
 template <typename T>
 typename std::enable_if<HasByteSize<T>::value, int>::type ByteSize(
     const T& message) {

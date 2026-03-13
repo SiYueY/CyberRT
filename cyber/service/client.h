@@ -35,7 +35,7 @@ namespace apollo {
 namespace cyber {
 
 /**
- * @class Client
+ * @class Client 客户端
  * @brief Client get `Response` from a responding `Service` by sending a Request
  *
  * @tparam Request the `Service` request type
@@ -83,9 +83,9 @@ class Client : public ClientBase {
 
   /**
    * @brief Request the Service with a shared ptr Request type
-   *
+   * 发送 Request 并等待 Response
    * @param request shared ptr of Request type
-   * @param timeout_s request timeout, if timeout, response will be empty
+   * @param timeout_s request timeout, if timeout, response will be empty  超时时间
    * @return SharedResponse result of this request
    */
   SharedResponse SendRequest(
@@ -94,9 +94,9 @@ class Client : public ClientBase {
 
   /**
    * @brief Request the Service with a Request object
-   *
+   * 发送 Request 并等待 Response
    * @param request Request object
-   * @param timeout_s request timeout, if timeout, response will be empty
+   * @param timeout_s request timeout, if timeout, response will be empty  超时时间
    * @return SharedResponse result of this request
    */
   SharedResponse SendRequest(
@@ -105,18 +105,20 @@ class Client : public ClientBase {
 
   /**
    * @brief Send Request shared ptr asynchronously
+   * 异步发送 Request 并等待 Response
    */
   SharedFuture AsyncSendRequest(SharedRequest request);
 
   /**
    * @brief Send Request object asynchronously
+   * 异步发送 Request 并等待 Response
    */
   SharedFuture AsyncSendRequest(const Request& request);
 
   /**
    * @brief Send Request shared ptr asynchronously and invoke `cb` after we get
    * response
-   *
+   * 异步发送 Request 并等待 Response，然后调用回调函数
    * @param request Request shared ptr
    * @param cb callback function after we get response
    * @return SharedFuture a `std::future` shared ptr
@@ -125,6 +127,7 @@ class Client : public ClientBase {
 
   /**
    * @brief Is the Service is ready?
+   * Service 是否就绪
    */
   bool ServiceIsReady() const;
 
@@ -149,36 +152,41 @@ class Client : public ClientBase {
   }
 
  private:
+  // 处理 Response
   void HandleResponse(const std::shared_ptr<Response>& response,
                       const transport::MessageInfo& request_info);
 
+  // 是否初始化
   bool IsInit(void) const { return response_receiver_ != nullptr; }
 
-  std::string node_name_;
+  std::string node_name_;                                                 // Node 名称
 
   std::function<void(const std::shared_ptr<Response>&,
                      const transport::MessageInfo&)>
-      response_callback_;
+      response_callback_;                                                 // Response 回调函数
 
   std::unordered_map<uint64_t,
                      std::tuple<SharedPromise, CallbackType, SharedFuture>>
-      pending_requests_;
-  std::mutex pending_requests_mutex_;
+      pending_requests_;                                                  // Pending Requests
+  std::mutex pending_requests_mutex_;                                     // 互斥锁
 
-  std::shared_ptr<transport::Transmitter<Request>> request_transmitter_;
-  std::shared_ptr<transport::Receiver<Response>> response_receiver_;
-  std::string request_channel_;
-  std::string response_channel_;
+  std::shared_ptr<transport::Transmitter<Request>> request_transmitter_;  // Request 发送器
+  std::shared_ptr<transport::Receiver<Response>> response_receiver_;      // Response 接收器
+  std::string request_channel_;                                           // Request Channel 名称
+  std::string response_channel_;                                          // Response Channel 名称
 
-  transport::Identity writer_id_;
-  uint64_t sequence_number_;
+  transport::Identity writer_id_;                                         // Writer ID
+  uint64_t sequence_number_;                                              // Sequence Number
 };
+
+
 
 template <typename Request, typename Response>
 void Client<Request, Response>::Destroy() {}
 
 template <typename Request, typename Response>
 bool Client<Request, Response>::Init() {
+  // Request Role
   proto::RoleAttributes role;
   role.set_node_name(node_name_);
   role.set_channel_name(request_channel_);
@@ -186,6 +194,7 @@ bool Client<Request, Response>::Init() {
   role.set_channel_id(channel_id);
   role.mutable_qos_profile()->CopyFrom(
       transport::QosProfileConf::QOS_PROFILE_SERVICES_DEFAULT);
+  // Request Transport
   auto transport = transport::Transport::Instance();
   request_transmitter_ =
       transport->CreateTransmitter<Request>(role, proto::OptionalMode::RTPS);
@@ -198,10 +207,11 @@ bool Client<Request, Response>::Init() {
   response_callback_ =
       std::bind(&Client<Request, Response>::HandleResponse, this,
                 std::placeholders::_1, std::placeholders::_2);
-
+  // Response Role
   role.set_channel_name(response_channel_);
   channel_id = common::GlobalData::RegisterChannel(response_channel_);
   role.set_channel_id(channel_id);
+  // Response Receiver
   response_receiver_ = transport->CreateReceiver<Response>(
       role,
       [=](const std::shared_ptr<Response>& response,

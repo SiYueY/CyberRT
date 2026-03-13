@@ -112,8 +112,11 @@ class SharedLibrary {
   SharedLibrary& operator=(const SharedLibrary&) = delete;
 
  private:
+  // 共享库句柄
   void* handle_ = nullptr;
+  // 共享库路径
   std::string path_;
+  // 互斥锁
   static std::mutex mutex_;
 };
 

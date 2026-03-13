@@ -37,19 +37,30 @@ class ModuleController {
   explicit ModuleController(const ModuleArgument& args);
   virtual ~ModuleController() = default;
 
+  // 加载模块
   bool Init();
+  // 加载所有模块
   bool LoadAll();
+  // 卸载模块
   void Clear();
 
  private:
+  // 加载模块
   bool LoadModule(const std::string& path);
   bool LoadModule(const DagConfig& dag_config);
+  // 获取组件名称
   int GetComponentNum(const std::string& path);
+  
+  // 组件总数
   int total_component_nums = 0;
+  // 是否存在定时组件
   bool has_timer_component = false;
 
+  // 模块参数
   ModuleArgument args_;
+  // 类加载管理器
   class_loader::ClassLoaderManager class_loader_manager_;
+  // 组件列表
   std::vector<std::shared_ptr<ComponentBase>> component_list_;
 };
 

@@ -42,6 +42,8 @@
 namespace apollo {
 namespace cyber {
 namespace transport {
+
+// Subscriber 订阅者
 class Subscriber {
  public:
   Subscriber(const std::string& name, const proto::QosProfile& qos,

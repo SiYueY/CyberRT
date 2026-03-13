@@ -85,6 +85,7 @@ class HybridTransmitter : public Transmitter<M> {
   void TransmitHistoryMsg(const RoleAttributes& opposite_attr);
   void ThreadFunc(const RoleAttributes& opposite_attr,
                   const std::vector<typename History<M>::CachedMessage>& msgs);
+  // 获取相对关系
   Relation GetRelation(const RoleAttributes& opposite_attr);
 
   HistoryPtr history_;
@@ -314,13 +315,15 @@ Relation HybridTransmitter<M>::GetRelation(
   if (opposite_attr.channel_name() != this->attr_.channel_name()) {
     return NO_RELATION;
   }
+  // 不同主机
   if (opposite_attr.host_ip() != this->attr_.host_ip()) {
     return DIFF_HOST;
   }
+  // 相同主机，不同进程
   if (opposite_attr.process_id() != this->attr_.process_id()) {
     return DIFF_PROC;
   }
-
+  // 相同主机，相同进程
   return SAME_PROC;
 }
 

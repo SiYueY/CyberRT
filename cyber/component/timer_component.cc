@@ -38,11 +38,19 @@ bool TimerComponent::Initialize(const TimerComponentConfig& config) {
     AERROR << "Missing required field in config file.";
     return false;
   }
+
+  // 创建 Node
   node_.reset(new Node(config.name()));
+
+  // 加载配置文件
   LoadConfigFiles(config);
+
+  // 初始化
   if (!Init()) {
     return false;
   }
+
+  // 时间间隔
   interval_ = config.interval();
 
   auto role_attr = std::make_shared<proto::RoleAttributes>();
@@ -60,8 +68,11 @@ bool TimerComponent::Initialize(const TimerComponentConfig& config) {
     statistics::Statistics::Instance()->SamplingProcLatency<
                   uint64_t>(*role_attr, (end_time-start_time)/1000);
   };
+
+  // 定时器
   timer_.reset(new Timer(config.interval(), func, false));
   timer_->Start();
+
   return true;
 }
 

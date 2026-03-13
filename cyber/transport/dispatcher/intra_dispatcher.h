@@ -48,11 +48,13 @@ using MessageListener =
 // use a channel chain to wrap specific ListenerHandler.
 // If the message is MessageT, then we use pointer directly, or we first parse
 // to a string, and use it to serialise to another message type.
+// ChannelChain: channel_id -> message_type -> ListenerHandler
 class ChannelChain {
   using BaseHandlersType =
       std::map<uint64_t, std::map<std::string, ListenerHandlerBasePtr>>;
 
  public:
+  // 添加 Listener 监听器
   template <typename MessageT>
   bool AddListener(uint64_t self_id, uint64_t channel_id,
                    const std::string& message_type,
@@ -91,6 +93,7 @@ class ChannelChain {
     return ret.second;
   }
 
+  // 删除 Listener 监听器
   template <typename MessageT>
   void RemoveListener(uint64_t self_id, uint64_t channel_id,
                       const std::string& message_type) {
@@ -118,6 +121,7 @@ class ChannelChain {
     }
   }
 
+  // 运行 ChannelChain
   template <typename MessageT>
   void Run(uint64_t self_id, uint64_t channel_id,
            const std::string& message_type,
@@ -142,6 +146,7 @@ class ChannelChain {
 
  private:
   // NOTE: lock hold
+  // 获取 ListenerHandler
   template <typename MessageT>
   std::pair<std::shared_ptr<ListenerHandler<MessageT>>, bool> GetHandler(
       uint64_t channel_id, const std::string& message_type,
@@ -172,6 +177,7 @@ class ChannelChain {
   }
 
   // NOTE: Lock hold
+  // 删除 ListenerHandler
   ListenerHandlerBasePtr RemoveHandler(int64_t channel_id,
                                        const std::string message_type,
                                        BaseHandlersType* handlers) {
@@ -244,20 +250,23 @@ class ChannelChain {
     }
   }
 
-  BaseHandlersType handlers_;
-  base::AtomicRWLock rw_lock_;
+  BaseHandlersType handlers_;   // 监听器
+  base::AtomicRWLock rw_lock_;  // 读写锁
   std::map<uint64_t, BaseHandlersType> oppo_handlers_;
   base::AtomicRWLock oppo_rw_lock_;
 };
 
+// IntraDispatcher: 进程内通信分发器
 class IntraDispatcher : public Dispatcher {
  public:
   virtual ~IntraDispatcher();
 
+  // 回调
   template <typename MessageT>
   void OnMessage(uint64_t channel_id, const std::shared_ptr<MessageT>& message,
                  const MessageInfo& message_info);
 
+  // 注册监听器 Listener
   template <typename MessageT>
   void AddListener(const RoleAttributes& self_attr,
                    const MessageListener<MessageT>& listener);
@@ -267,6 +276,7 @@ class IntraDispatcher : public Dispatcher {
                    const RoleAttributes& opposite_attr,
                    const MessageListener<MessageT>& listener);
 
+  // 注销监听器 Listener
   template <typename MessageT>
   void RemoveListener(const RoleAttributes& self_attr);
 
@@ -274,6 +284,7 @@ class IntraDispatcher : public Dispatcher {
   void RemoveListener(const RoleAttributes& self_attr,
                       const RoleAttributes& opposite_attr);
 
+  // 单例模式
   DECLARE_SINGLETON(IntraDispatcher)
 
  private:

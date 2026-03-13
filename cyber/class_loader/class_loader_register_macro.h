@@ -19,6 +19,10 @@
 
 #include "cyber/class_loader/utility/class_loader_utility.h"
 
+// 注册类: 创建唯一的代理类和实例，并使用基类和派生类名称注册
+// Derived : 派生类
+// Base    : 基类
+// UniqueID: 唯一标识符，用于避免重复注册
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID)     \
   namespace {                                                             \
   struct ProxyType##UniqueID {                                            \
@@ -33,7 +37,7 @@
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL_1(Derived, Base, UniqueID) \
   CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID)
 
-// register class macro
+// 注册类加载器
 #define CLASS_LOADER_REGISTER_CLASS(Derived, Base) \
   CLASS_LOADER_REGISTER_CLASS_INTERNAL_1(Derived, Base, __COUNTER__)
 

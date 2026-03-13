@@ -29,35 +29,40 @@ namespace apollo {
 namespace cyber {
 namespace class_loader {
 
-/**
- *  for library load,createclass object
- */
+// 类加载器: 动态加载共享库，并创建类的实例化对象
 class ClassLoader {
  public:
   explicit ClassLoader(const std::string& library_path);
   virtual ~ClassLoader();
 
   bool IsLibraryLoaded();
+  // 加载动态库
   bool LoadLibrary();
+  // 卸载动态库
   int UnloadLibrary();
+  // 获取动态库路径
   const std::string GetLibraryPath() const;
+  // 获取有效的类名列表
   template <typename Base>
   std::vector<std::string> GetValidClassNames();
+  // 创建类对象
   template <typename Base>
   std::shared_ptr<Base> CreateClassObj(const std::string& class_name);
+  // 判断类名是否有效
   template <typename Base>
   bool IsClassValid(const std::string& class_name);
 
  private:
+  // 删除类对象
   template <typename Base>
   void OnClassObjDeleter(Base* obj);
 
  private:
-  std::string library_path_;
-  int loadlib_ref_count_;
-  std::mutex loadlib_ref_count_mutex_;
-  int classobj_ref_count_;
-  std::mutex classobj_ref_count_mutex_;
+  std::string library_path_;             // 动态库路径
+  int loadlib_ref_count_;                // 引用计数
+  std::mutex loadlib_ref_count_mutex_;   // 互斥锁
+  int classobj_ref_count_;               // 类对象引用计数
+  std::mutex classobj_ref_count_mutex_;  // 互斥锁
 };
 
 template <typename Base>
@@ -75,10 +80,12 @@ bool ClassLoader::IsClassValid(const std::string& class_name) {
 template <typename Base>
 std::shared_ptr<Base> ClassLoader::CreateClassObj(
     const std::string& class_name) {
+  // 懒加载机制: 只有当创建类对象实例时，才加载动态库
   if (!IsLibraryLoaded()) {
     LoadLibrary();
   }
 
+  // 根据子类的名称创建类对象, 并返回基类的对象指针
   Base* class_object = utility::CreateClassObj<Base>(class_name, this);
   if (class_object == nullptr) {
     AWARN << "CreateClassObj failed, ensure class has been registered. "
@@ -86,8 +93,10 @@ std::shared_ptr<Base> ClassLoader::CreateClassObj(
     return std::shared_ptr<Base>();
   }
 
+  // 增加类对象引用计数
   std::lock_guard<std::mutex> lck(classobj_ref_count_mutex_);
   classobj_ref_count_ = classobj_ref_count_ + 1;
+  // 绑定类对象销毁方法
   std::shared_ptr<Base> classObjSharePtr(
       class_object, std::bind(&ClassLoader::OnClassObjDeleter<Base>, this,
                               std::placeholders::_1));

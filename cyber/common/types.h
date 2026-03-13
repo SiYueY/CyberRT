@@ -34,10 +34,10 @@ enum ReturnCode {
  * @brief Describe relation between nodes, writers/readers...
  */
 enum Relation : std::uint8_t {
-  NO_RELATION = 0,
-  DIFF_HOST,  // different host
-  DIFF_PROC,  // same host, but different process
-  SAME_PROC,  // same process
+  NO_RELATION = 0,  // 无关
+  DIFF_HOST,        // 不同主机
+  DIFF_PROC,        // 相同主机, 不同进程
+  SAME_PROC,        // 相同进程
 };
 
 static const char SRV_CHANNEL_REQ_SUFFIX[] = "__SRV__REQUEST";

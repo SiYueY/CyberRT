@@ -28,16 +28,21 @@ namespace cyber {
 namespace mainboard {
 
 void ModuleController::Clear() {
+  // 关闭所有组件
   for (auto& component : component_list_) {
     component->Shutdown();
   }
   component_list_.clear();  // keep alive
+  // 卸载所有动态库
   class_loader_manager_.UnloadAllLibrary();
 }
 
 bool ModuleController::LoadAll() {
+  // 工作目录
   const std::string work_root = common::WorkRoot();
+  // 当前目录
   const std::string current_path = common::GetCurrentPath();
+  // DAG 根目录
   const std::string dag_root_path = common::GetAbsolutePath(work_root, "dag");
   std::vector<std::string> paths;
   for (auto& plugin_description : args_.GetPluginDescriptionList()) {
@@ -75,6 +80,7 @@ bool ModuleController::LoadAll() {
 
 bool ModuleController::LoadModule(const DagConfig& dag_config) {
   for (auto module_config : dag_config.module_config()) {
+    // 加载路径
     std::string load_path;
     if (!common::GetFilePathWithEnv(module_config.module_library(),
                                     "APOLLO_LIB_PATH", &load_path)) {
@@ -84,22 +90,31 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
     }
     AINFO << "mainboard: use module library " << load_path;
 
+    // 加载动态库
     class_loader_manager_.LoadLibrary(load_path);
 
+    // 创建普通组件实例
     for (auto& component : module_config.components()) {
+      // 类名称
       const std::string& class_name = component.class_name();
+      // 创建对象
       std::shared_ptr<ComponentBase> base =
           class_loader_manager_.CreateClassObj<ComponentBase>(class_name);
+      // 对象初始化
       if (base == nullptr || !base->Initialize(component.config())) {
         return false;
       }
       component_list_.emplace_back(std::move(base));
     }
 
+    // 创建普通组件实例
     for (auto& component : module_config.timer_components()) {
+      // 类名称
       const std::string& class_name = component.class_name();
+      // 创建对象
       std::shared_ptr<ComponentBase> base =
           class_loader_manager_.CreateClassObj<ComponentBase>(class_name);
+      // 对象初始化
       if (base == nullptr || !base->Initialize(component.config())) {
         return false;
       }

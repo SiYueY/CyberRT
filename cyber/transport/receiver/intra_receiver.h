@@ -25,6 +25,7 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// Intra Receiver: 进程内接收器
 template <typename M>
 class IntraReceiver : public Receiver<M> {
  public:
@@ -32,6 +33,7 @@ class IntraReceiver : public Receiver<M> {
                 const typename Receiver<M>::MessageListener& msg_listener);
   virtual ~IntraReceiver();
 
+  // Enable / Disable
   void Enable() override;
   void Disable() override;
 
@@ -39,7 +41,7 @@ class IntraReceiver : public Receiver<M> {
   void Disable(const RoleAttributes& opposite_attr) override;
 
  private:
-  IntraDispatcherPtr dispatcher_;
+  IntraDispatcherPtr dispatcher_;  // Dispatcher 分发器
 };
 
 template <typename M>

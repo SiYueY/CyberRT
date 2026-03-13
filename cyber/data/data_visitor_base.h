@@ -34,6 +34,7 @@ class DataVisitorBase {
  public:
   DataVisitorBase() : notifier_(new Notifier()) {}
 
+  // 注册唤醒回调
   void RegisterNotifyCallback(std::function<void()>&& callback) {
     notifier_->callback = callback;
   }
@@ -42,8 +43,11 @@ class DataVisitorBase {
   DataVisitorBase(const DataVisitorBase&) = delete;
   DataVisitorBase& operator=(const DataVisitorBase&) = delete;
 
+  // 下一 Message 索引
   uint64_t next_msg_index_ = 0;
+  // DataNotifier 单例
   DataNotifier* data_notifier_ = DataNotifier::Instance();
+  // Notifier
   std::shared_ptr<Notifier> notifier_;
 };
 

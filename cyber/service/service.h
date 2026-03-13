@@ -31,7 +31,7 @@ namespace apollo {
 namespace cyber {
 
 /**
- * @class Service
+ * @class Service Service 服务端
  * @brief Service handles `Request` from the Client, and send a `Response` to
  * it.
  *
@@ -91,34 +91,39 @@ class Service : public ServiceBase {
   void destroy();
 
  private:
+  // 处理 Request
   void HandleRequest(const std::shared_ptr<Request>& request,
                      const transport::MessageInfo& message_info);
 
+  // 发送 Response
   void SendResponse(const transport::MessageInfo& message_info,
                     const std::shared_ptr<Response>& response);
 
+  // 是否初始化
   bool IsInit(void) const { return request_receiver_ != nullptr; }
 
-  std::string node_name_;
-  ServiceCallback service_callback_;
+  std::string node_name_;                                                   // Node 名称
+  ServiceCallback service_callback_;                                        // Service 回调函数
 
   std::function<void(const std::shared_ptr<Request>&,
                      const transport::MessageInfo&)>
-      request_callback_;
-  std::shared_ptr<transport::Transmitter<Response>> response_transmitter_;
-  std::shared_ptr<transport::Receiver<Request>> request_receiver_;
-  std::string request_channel_;
-  std::string response_channel_;
-  std::mutex service_handle_request_mutex_;
+      request_callback_;                                                    // Request 回调函数
+  std::shared_ptr<transport::Transmitter<Response>> response_transmitter_;  // Response 发送器
+  std::shared_ptr<transport::Receiver<Request>> request_receiver_;          // Request 接收器
+  std::string request_channel_;                                             // Request Channel 名称
+  std::string response_channel_;                                            // Response Channel 名称
+  std::mutex service_handle_request_mutex_;                                 // 互斥锁
 
-  volatile bool inited_ = false;
-  void Enqueue(std::function<void()>&& task);
-  void Process();
-  std::thread thread_;
-  std::mutex queue_mutex_;
-  std::condition_variable condition_;
-  std::list<std::function<void()>> tasks_;
+  volatile bool inited_ = false;                                            // 是否初始化
+  void Enqueue(std::function<void()>&& task);                               // 入队任务
+  void Process();                                                           // 处理任务
+  std::thread thread_;                                                      // 线程
+  std::mutex queue_mutex_;                                                  // 互斥锁
+  std::condition_variable condition_;                                       // 条件变量
+  std::list<std::function<void()>> tasks_;                                  // 任务队列
 };
+
+
 
 template <typename Request, typename Response>
 void Service<Request, Response>::destroy() {

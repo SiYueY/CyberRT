@@ -28,6 +28,7 @@ namespace apollo {
 namespace cyber {
 namespace transport {
 
+// Intra Transmitter: 进程内发送器
 template <typename M>
 class IntraTransmitter : public Transmitter<M> {
  public:
@@ -36,19 +37,22 @@ class IntraTransmitter : public Transmitter<M> {
   explicit IntraTransmitter(const RoleAttributes& attr);
   virtual ~IntraTransmitter();
 
+  // Enable / Disable
   void Enable() override;
   void Disable() override;
 
   void Enable(const RoleAttributes& opposite_attr) override;
   void Disable(const RoleAttributes& opposite_attr) override;
 
+  // Transmit 发送
   bool Transmit(const MessagePtr& msg, const MessageInfo& msg_info) override;
 
+  // 获取消息
   bool AcquireMessage(std::shared_ptr<M>& msg);
 
  private:
-  uint64_t channel_id_;
-  IntraDispatcherPtr dispatcher_;
+  uint64_t channel_id_;            // Channel ID
+  IntraDispatcherPtr dispatcher_;  // Dispatcher 分发器
 };
 
 template <typename M>

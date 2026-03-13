@@ -33,8 +33,9 @@
 using apollo::cyber::mainboard::ModuleArgument;
 using apollo::cyber::mainboard::ModuleController;
 
+// cyber 入口
 int main(int argc, char** argv) {
-  // parse the argument
+  // 解析参数
   ModuleArgument module_args;
   module_args.ParseArgument(argc, argv);
 
@@ -61,11 +62,13 @@ int main(int argc, char** argv) {
     dag_info = module_args.GetProcessGroup();
   }
 
-  // initialize cyber
+  // 初始化 cyber
   apollo::cyber::Init(argv[0], dag_info);
 
   static bool enable_cpu_profile = module_args.GetEnableCpuprofile();
   static bool enable_mem_profile = module_args.GetEnableHeapprofile();
+  
+  // 注册信号
   std::signal(SIGTERM, [](int sig){
     apollo::cyber::OnShutdown(sig);
     if (enable_cpu_profile) {
@@ -83,7 +86,7 @@ int main(int argc, char** argv) {
     HeapProfilerStart(profile_filename.c_str());
   }
 
-  // start module
+  // 加载模块 Module
   ModuleController controller(module_args);
   if (!controller.Init()) {
     controller.Clear();
@@ -96,6 +99,7 @@ int main(int argc, char** argv) {
     ProfilerStart(profile_filename.c_str());
   }
 
+  // 等待 cyber 关闭
   apollo::cyber::WaitForShutdown();
 
   if (module_args.GetEnableCpuprofile()) {
@@ -107,6 +111,7 @@ int main(int argc, char** argv) {
     HeapProfilerStop();
   }
 
+  // 卸载模块
   controller.Clear();
   AINFO << "exit mainboard.";
 

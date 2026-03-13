@@ -39,31 +39,38 @@ namespace transport {
 
 class Publisher;
 using PublisherPtr = std::shared_ptr<Publisher>;
+
+// Publisher 发布者
 class Publisher {
  public:
   Publisher(const std::string& channel_name, const proto::QosProfile& qos,
             eprosima::fastdds::dds::DomainParticipant* participant);
   virtual ~Publisher();
 
+  // 初始化
   bool Init();
+  // 发送消息
   bool Write(const UnderlayMessage& msg, bool is_topo_msg = false);
   bool Write(const UnderlayMessage& msg, const MessageInfo& msg_info,
              bool is_topo_msg = false);
+  // 关闭
   void Shutdown();
 
  private:
+  // 禁用拷贝构造函数和拷贝赋值运算符
   Publisher(const Publisher&) = delete;
   Publisher& operator=(const Publisher&) = delete;
+  // 创建 Topic
   bool EnsureCreateTopic(const std::string& channel_name);
 
-  std::string channel_name_;
-  proto::QosProfile qos_;
-  std::atomic<bool> shutdown_;
+  std::string channel_name_;                                  // Channel 名称
+  proto::QosProfile qos_;                                     // QoSProfile
+  std::atomic<bool> shutdown_;                                // 关闭标志
 
-  eprosima::fastdds::dds::DomainParticipant* participant_;
-  eprosima::fastdds::dds::Publisher* publisher_;
-  eprosima::fastdds::dds::Topic* topic_;
-  eprosima::fastdds::dds::DataWriter* writer_;
+  eprosima::fastdds::dds::DomainParticipant* participant_;    // Participant
+  eprosima::fastdds::dds::Publisher* publisher_;              // Publisher
+  eprosima::fastdds::dds::Topic* topic_;                      // Topic
+  eprosima::fastdds::dds::DataWriter* writer_;                // DataWriter
 };
 
 }  // namespace transport

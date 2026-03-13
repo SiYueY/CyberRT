@@ -23,8 +23,10 @@ namespace apollo {
 namespace cyber {
 namespace scheduler {
 
+// 条件变量 Wrapper
 class CvWrapper {
  public:
+  // 禁用拷贝赋值运算符
   CvWrapper& operator=(const CvWrapper& other) = delete;
   std::condition_variable& Cv() { return cv_; }
 

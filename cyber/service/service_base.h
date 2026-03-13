@@ -23,7 +23,7 @@ namespace apollo {
 namespace cyber {
 
 /**
- * @class ServiceBase
+ * @class ServiceBase 服务端基类
  * @brief Base class for Service
  *
  */
@@ -42,12 +42,12 @@ class ServiceBase {
   virtual void destroy() = 0;
 
   /**
-   * @brief Get the service name
+   * @brief Get the service name 获取 Service 名称
    */
   const std::string& service_name() const { return service_name_; }
 
  protected:
-  std::string service_name_;
+  std::string service_name_;  // Service 名称
 };
 
 }  // namespace cyber

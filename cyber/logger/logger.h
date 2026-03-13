@@ -25,17 +25,23 @@ namespace apollo {
 namespace cyber {
 namespace logger {
 
+// Logger wrapper for glog
 class Logger : public google::base::Logger {
  public:
   explicit Logger(google::base::Logger* wrapped);
   ~Logger();
+  // 写入
   void Write(bool force_flush, time_t timestamp, const char* message,
              int message_len) override;
+  // 刷新
   void Flush() override;
+  // 日志大小
   uint32_t LogSize() override;
 
  private:
+  // glog wrapper
   google::base::Logger* const wrapped_;
+  // 互斥锁
   std::mutex mutex_;
 };
 

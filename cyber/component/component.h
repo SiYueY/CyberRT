@@ -501,6 +501,7 @@ bool Component<M0, M1, M2, NullType>::Initialize(
   return sched->CreateTask(factory, node_->Name());
 }
 
+// Process
 template <typename M0, typename M1, typename M2, typename M3>
 bool Component<M0, M1, M2, M3>::Process(const std::shared_ptr<M0>& msg0,
                                         const std::shared_ptr<M1>& msg1,
@@ -512,16 +513,22 @@ bool Component<M0, M1, M2, M3>::Process(const std::shared_ptr<M0>& msg0,
   return Proc(msg0, msg1, msg2, msg3);
 }
 
+// Initialize
 template <typename M0, typename M1, typename M2, typename M3>
 bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
+  // Node 节点
   node_.reset(new Node(config.name()));
+
+  // 加载配置文件
   LoadConfigFiles(config);
 
+  // 订阅的 Message 数量需和 Reader 数量匹配
   if (config.readers_size() < 4) {
     AERROR << "Invalid config file: too few readers_." << std::endl;
     return false;
   }
 
+  // 初始化
   if (!Init()) {
     AERROR << "Component Init() failed." << std::endl;
     return false;
@@ -529,6 +536,7 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
 
   bool is_reality_mode = GlobalData::Instance()->IsRealityMode();
 
+  // Reader 配置
   ReaderConfig reader_cfg;
   reader_cfg.channel_name = config.readers(1).channel();
   reader_cfg.qos_profile.CopyFrom(config.readers(1).qos_profile());
@@ -558,8 +566,10 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
 
   std::shared_ptr<Reader<M0>> reader0 = nullptr;
   if (cyber_likely(is_reality_mode)) {
+    // Reality 模式
     reader0 = node_->template CreateReader<M0>(reader_cfg);
   } else {
+    // 非 Reality 模式
     std::weak_ptr<Component<M0, M1, M2, M3>> self =
         std::dynamic_pointer_cast<Component<M0, M1, M2, M3>>(
             shared_from_this());
@@ -607,6 +617,8 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
     AERROR << "Component create reader failed." << std::endl;
     return false;
   }
+
+  // 保存 Reader
   readers_.push_back(std::move(reader0));
   readers_.push_back(std::move(reader1));
   readers_.push_back(std::move(reader2));
@@ -648,6 +660,8 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
     config_list.emplace_back(reader->ChannelId(), reader->PendingQueueSize());
   }
   auto dv = std::make_shared<data::DataVisitor<M0, M1, M2, M3>>(config_list);
+  
+  // 协程工厂
   croutine::RoutineFactory factory =
       croutine::CreateRoutineFactory<M0, M1, M2, M3>(func, dv);
   return sched->CreateTask(factory, node_->Name());

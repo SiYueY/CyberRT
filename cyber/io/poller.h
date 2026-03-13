@@ -33,6 +33,7 @@ namespace apollo {
 namespace cyber {
 namespace io {
 
+// Poller
 class Poller {
  public:
   using RequestPtr = std::shared_ptr<PollRequest>;
@@ -41,9 +42,12 @@ class Poller {
 
   virtual ~Poller();
 
+  // 关闭
   void Shutdown();
 
+  // 注册
   bool Register(const PollRequest& req);
+  // 注销
   bool Unregister(const PollRequest& req);
 
  private:
@@ -55,10 +59,14 @@ class Poller {
   int GetTimeoutMs();
   void Notify();
 
+  // epoll 句柄
   int epoll_fd_ = -1;
+  // 线程
   std::thread thread_;
+  // 关闭标志
   std::atomic<bool> is_shutdown_ = {true};
 
+  // 管道
   int pipe_fd_[2] = {-1, -1};
   std::mutex pipe_mutex_;
 
@@ -69,6 +77,7 @@ class Poller {
   const int kPollSize = 32;
   const int kPollTimeoutMs = 100;
 
+  // 单例模式
   DECLARE_SINGLETON(Poller)
 };
 

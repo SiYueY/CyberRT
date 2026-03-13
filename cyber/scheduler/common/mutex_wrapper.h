@@ -23,8 +23,10 @@ namespace apollo {
 namespace cyber {
 namespace scheduler {
 
+// 互斥锁 Wrapper
 class MutexWrapper {
  public:
+  // 禁用拷贝赋值运算符
   MutexWrapper& operator=(const MutexWrapper& other) = delete;
   std::mutex& Mutex() { return mutex_; }
 

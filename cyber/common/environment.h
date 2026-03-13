@@ -26,6 +26,7 @@ namespace apollo {
 namespace cyber {
 namespace common {
 
+// 获取环境变量
 inline std::string GetEnv(const std::string& var_name,
                           const std::string& default_value = "") {
   const char* var = std::getenv(var_name.c_str());
@@ -37,6 +38,7 @@ inline std::string GetEnv(const std::string& var_name,
   return std::string(var);
 }
 
+// 获取工作目录
 inline const std::string WorkRoot() {
   std::string work_root = GetEnv("CYBER_PATH");
   if (work_root.empty()) {
